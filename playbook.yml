@@ -1,0 +1,40 @@
+---
+# Basic provisioning example
+- name: Create AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  
+  tasks:
+  - name: Create a security group in AWS for SSH access and HTTP
+    ec2_group:
+      name: ansible
+      description: Ansible Security Group
+      region: eu-west-2
+      rules:
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 443
+          to_port: 443
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+    
+  - name: Provision an EC2 instance
+    ec2:
+      key_name: newKeyPair
+      group: ansible
+      instance_type: t2.micro
+      image: ami-04213109db1b782aa
+      region: eu-west-2
+      wait: yes
+      count: 1
+      instance_tags:
+        Name: Ansible
+    register: ec2
+        
